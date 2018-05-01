@@ -1,0 +1,30 @@
+var jsArrayData = [
+        0.0, 1.0, 0.0,//上顶点
+        1.0, -1.0, 0.0,//左顶点
+        1.0, 1.0, 0.0];//右顶点
+
+    triangleBuffer = webgl.createBuffer();
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleBuffer);
+    webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(jsArrayData), webgl.STATIC_DRAW);
+
+    var jsArrayColor = [
+        1.0, 0.0, 0.0,//上顶点
+        1.0, 0.0, 0.0,//左顶点
+        1.0, 0.0, 0.0];//右顶点
+
+    triangleColorBuffer = webgl.createBuffer();
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleColorBuffer);
+    webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(jsArrayColor), webgl.STATIC_DRAW);
+
+    webgl.clearColor(0.0, 0.0, 0.0, 1.0);
+    webgl.clear(webgl.COLOR_BUFFER_BIT);
+
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleBuffer);
+    webgl.enableVertexAttribArray(v3PositionIndex); 
+    webgl.vertexAttribPointer(v3PositionIndex, 3, webgl.FLOAT, false, 0, 0);
+
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleColorBuffer);
+    webgl.enableVertexAttribArray(v3ColorIndex); 
+    webgl.vertexAttribPointer(v3ColorIndex, 3, webgl.FLOAT, false, 0, 0);
+
+    webgl.drawArrays(webgl.TRIANGLES, 0, 3);

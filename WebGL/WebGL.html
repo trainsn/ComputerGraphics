@@ -1,0 +1,260 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<script type="text/javascript" src="glMatrix-0.9.5.js"></script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+attribute vec3 v3Position;
+attribute vec3 av3Color;
+varying vec3 vv3Color;
+void main(void)
+{
+    vv3Color = av3Color;
+    gl_Position = vec4(v3Position, 1.0);
+}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+#else
+    precision mediump float;
+#endif
+varying vec3 vv3Color;
+void main(void)
+{
+    gl_FragColor = vec4(vv3Color, 1.0);
+}
+</script>
+
+<script>
+function ShaderSourceFromScript(scriptID)
+{
+    var shaderScript = document.getElementById(scriptID);
+    if (shaderScript == null) return "";
+
+    var sourceCode = "";
+    var child = shaderScript.firstChild;
+    while (child)
+    {
+        if (child.nodeType == child.TEXT_NODE ) sourceCode += child.textContent;
+        child = child.nextSibling;
+    }
+
+    return sourceCode;
+}
+
+var webgl = null;
+var vertexShaderObject = null;
+var fragmentShaderObject = null;
+var programObject = null;
+var triangleBuffer = null; 
+var v3PositionIndex = 0;
+var triangleColorBuffer = null;
+var v3ColorIndex = 1;
+function draw(jsArrayData,jsArrayColor)
+{
+     triangleBuffer = webgl.createBuffer();
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleBuffer);
+    webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(jsArrayData), webgl.STATIC_DRAW);
+
+    triangleColorBuffer = webgl.createBuffer();
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleColorBuffer);
+    webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(jsArrayColor), webgl.STATIC_DRAW);
+
+    webgl.clearColor(0.0, 0.0, 0.0, 1.0);
+    //webgl.clear(webgl.COLOR_BUFFER_BIT);
+
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleBuffer);
+    webgl.enableVertexAttribArray(v3PositionIndex); 
+    webgl.vertexAttribPointer(v3PositionIndex, 3, webgl.FLOAT, false, 0, 0);
+
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleColorBuffer);
+    webgl.enableVertexAttribArray(v3ColorIndex); 
+    webgl.vertexAttribPointer(v3ColorIndex, 3, webgl.FLOAT, false, 0, 0);
+
+    webgl.drawArrays(webgl.TRIANGLES, 0, 3);
+}
+
+function Init()
+{
+    var myCanvasObject = document.getElementById('myCanvas');
+    webgl = myCanvasObject.getContext("experimental-webgl");
+
+    webgl.viewport(0, 0, myCanvasObject.clientWidth, myCanvasObject.clientHeight);
+
+    vertexShaderObject = webgl.createShader(webgl.VERTEX_SHADER);
+    fragmentShaderObject = webgl.createShader(webgl.FRAGMENT_SHADER);
+
+    webgl.shaderSource(vertexShaderObject, ShaderSourceFromScript("shader-vs"));
+    webgl.shaderSource(fragmentShaderObject, ShaderSourceFromScript("shader-fs"));
+
+    webgl.compileShader(vertexShaderObject);
+    webgl.compileShader(fragmentShaderObject);
+
+    if(!webgl.getShaderParameter(vertexShaderObject, webgl.COMPILE_STATUS)){alert(webgl.getShaderInfoLog(vertexShaderObject));return;}
+    if(!webgl.getShaderParameter(fragmentShaderObject, webgl.COMPILE_STATUS)){alert(webgl.getShaderInfoLog(fragmentShaderObject));return;}
+
+    programObject = webgl.createProgram();
+
+    webgl.attachShader(programObject, vertexShaderObject);
+    webgl.attachShader(programObject, fragmentShaderObject);
+
+    webgl.bindAttribLocation(programObject, v3PositionIndex, "v3Position");
+    webgl.bindAttribLocation(programObject, v3ColorIndex, "av3Color");
+
+    webgl.linkProgram(programObject);
+    if(!webgl.getProgramParameter(programObject, webgl.LINK_STATUS)){alert(webgl.getProgramInfoLog(programObject));return;}
+
+    webgl.useProgram(programObject);
+
+    //the marix below
+    var jsArrayData = [
+        -1.0, -1.0, 0.0,
+        -1.0, 0.0, 0.0,
+        1.0, -1.0, 0.0];
+
+    var jsArrayColor = [
+        0.8353, 0.01686, 0.1176,
+        0.8353, 0.01686, 0.1176,
+        0.8353, 0.01686, 0.1176];
+
+    draw(jsArrayData,jsArrayColor);    
+    //the second 
+    var jsArrayData = [
+        1.0, 0.0, 0.0,
+        1.0, -1.0, 0.0,
+        -1.0, 0.0, 0.0];
+ 
+    var jsArrayColor = [
+        0.8353, 0.01686, 0.1176,
+        0.8353, 0.01686, 0.1176,
+        0.8353, 0.01686, 0.1176];
+
+    draw(jsArrayData,jsArrayColor);  
+
+    //the left matrix
+    //the first 
+    var jsArrayData = [
+        -1.0/3, 1.0, 0.0,
+        -1.0/3, 0.0, 0.0,
+        -1.0, 0.0, 0.0];
+
+    var jsArrayColor = [
+        0.0, 0.2235, 0.6510,
+        0.0, 0.2235, 0.6510,
+        0.0, 0.2235, 0.6510];
+    draw(jsArrayData,jsArrayColor);
+    //the second 
+    var jsArrayData = [
+        -1.0, 1.0, 0.0,
+        -1.0, 0.0, 0.0,
+        -1.0/3, 1.0, 0.0];
+
+    var jsArrayColor = [
+        0.0, 0.2235, 0.6510,
+        0.0, 0.2235, 0.6510,
+        0.0, 0.2235, 0.6510];
+    draw(jsArrayData,jsArrayColor);
+
+    //the star
+    var r=0.25
+    var i=-2.0/3
+    var j=0.5
+
+    var ax=0;
+    var ay=r;
+    var bx=r*2.0/3*0.9511;//cos18
+    var by=r*0.3090;//sin18
+    var cx=r*2.0/3*0.5877;//cos54
+    var cy=-r*0.8090;//sin54
+    var dx=-cx;
+    var dy=cy;
+    var ex=-bx;
+    var ey=by;                                                     
+
+    var jsArrayData = [
+        i, j, 0.0,
+        i + ax, j + ay, 0.0,
+       i + dx, j + dy, 0.0];
+
+    var jsArrayColor = [
+        1.0,1.0,1.0,
+        1.0,1.0,1.0,
+        1.0,1.0,1.0];
+    draw(jsArrayData,jsArrayColor);
+
+    var jsArrayData = [
+        i, j, 0.0,
+        i + ax, j + ay, 0.0,
+       i + cx, j + cy, 0.0];
+
+    var jsArrayColor = [
+        1.0,1.0,1.0,
+        1.0,1.0,1.0,
+        1.0,1.0,1.0];
+    draw(jsArrayData,jsArrayColor);
+
+    var jsArrayData = [
+        i, j, 0.0,
+        i + bx, j + by, 0.0,
+       i + ex, j + ey, 0.0];
+
+    var jsArrayColor = [
+        1.0,1.0,1.0,
+        1.0,1.0,1.0,
+        1.0,1.0,1.0];
+    draw(jsArrayData,jsArrayColor);
+
+    var jsArrayData = [
+        i, j, 0.0,
+        i + bx, j + by, 0.0,
+       i + dx, j + dy, 0.0];
+
+    var jsArrayColor = [
+        1.0,1.0,1.0,
+        1.0,1.0,1.0,
+        1.0,1.0,1.0];
+    draw(jsArrayData,jsArrayColor);
+
+    var jsArrayData = [
+        i, j, 0.0,
+       i + cx, j + cy, 0.0,
+       i + ex, j + ey, 0.0];
+
+    var jsArrayColor = [
+        1.0,1.0,1.0,
+        1.0,1.0,1.0,
+        1.0,1.0,1.0];
+    draw(jsArrayData,jsArrayColor);
+
+    //the right matrix
+     var jsArrayData = [
+        -1.0/3, 1.0, 1.0,
+        -1.0/3, 0.0, 0.0,
+        1.0, 1.0, 0.0];
+
+    var jsArrayColor = [
+        1.0,1.0,1.0,
+        1.0,1.0,1.0,
+        1.0,1.0,1.0];
+    draw(jsArrayData,jsArrayColor);
+
+    var jsArrayData = [
+        1.0, 1.0, 1.0,
+        -1.0/3, 0.0, 0.0,
+        1.0, 0.0, 0.0];
+
+    var jsArrayColor = [
+        1.0,1.0,1.0,
+        1.0,1.0,1.0,
+        1.0,1.0,1.0];
+    draw(jsArrayData,jsArrayColor);
+
+}
+</script>
+</head>
+<body onload='Init()'>
+<canvas id="myCanvas" style="border:1px solid red;" width='600px' height='450px'></canvas>
+</body>
+</html>

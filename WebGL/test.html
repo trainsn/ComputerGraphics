@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		#mycanvas{border: 1px solid red;}
+	</style>
+</head>
+<body>
+	<canvas id="mycanvas" width="600" height="300"></canvas>
+	<script>
+		var canvas=document.getElementById('mycanvas');
+		var context= canvas.getContext('2d');
+
+		context.font='20pt Calibri';
+		context.fillStyle='green';
+		context.fillText('Welcom to',100,100);
+	</script>
+
+</body>
+</html>
+
+
+
+<!--<html>
+   <body>
+      <canvas id = "mycanvas" width = "600" height = "300"></canvas>
+      
+      <script>
+         var canvas = document.getElementById('mycanvas');
+         var context = canvas.getContext('2d');
+			
+         context.font = '20pt Calibri';
+         context.fillStyle = 'green';
+         context.fillText('Welcome to Yiibai Tutorial', 100, 100);
+      </script>
+      
+   </body>
+</html>-->
